@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>الدفع - Take Two</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { text-align:center; padding:40px; font-family:'Cairo',sans-serif; background:#f7f9fa; }
+    .card { max-width:500px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+    input { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
+    button { background:#27ae60; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold; }
+    button:hover { background:#219150; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>إتمام الدفع</h2>
+    <p>الرجاء إدخال بياناتك لإتمام عملية الدفع بأمان.</p>
+
+    <input id="full_name" placeholder="الاسم الكامل" required />
+    <input id="email" placeholder="البريد الإلكتروني" type="email" required />
+    <input id="phone" placeholder="رقم الهاتف" required />
+    <input id="amount" placeholder="المبلغ بالجنيه" required />
+
+    <button onclick="startPayment()">الدفع الآن</button>
+  </div>
+
+  <script>
+    const API_KEY = "YOUR_PAYMOB_API_KEY";
+    const INTEGRATION_ID = "YOUR_INTEGRATION_ID";
+
+    async function startPayment() {
+      const name = document.getElementById("full_name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const amount = Number(document.getElementById("amount").value) * 100; // بالمليم
+
+      // 1️⃣ الخطوة الأولى: الحصول على Token
+      const auth = await fetch("https://accept.paymob.com/api/auth/tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_key: API_KEY })
+      });
+      const authData = await auth.json();
+      const token = authData.token;
+
+      // 2️⃣ إنشاء الطلب
+      const order = await fetch("https://accept.paymob.com/api/ecommerce/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth_token: token,
+          delivery_needed: "false",
+          amount_cents: amount,
+          currency: "EGP",
+          items: []
+        })
+      });
+      const orderData = await order.json();
+
+      // 3️⃣ إنشاء Payment Key
+      const paymentKeyReq = await fetch("https://accept.paymob.com/api/acceptance/payment_keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth_token: token,
+          amount_cents: amount,
+          expiration: 3600,
+          order_id: orderData.id,
+          billing_data: {
+            apartment: "NA",
+            email,
+            floor: "NA",
+            first_name: name.split(" ")[0],
+            last_name: name.split(" ")[1] || "",
+            phone_number: phone,
+            street: "NA",
+            building: "NA",
+            shipping_method: "NA",
+            postal_code: "NA",
+            city: "Cairo",
+            country: "EG",
+            state: "Cairo"
+          },
+          currency: "EGP",
+          integration_id: INTEGRATION_ID
+        })
+      });
+      const paymentKeyData = await paymentKeyReq.json();
+      const paymentToken = paymentKeyData.token;
+
+      // 4️⃣ فتح صفحة الدفع (Iframe أو Redirect)
+      window.location.href = `https://accept.paymob.com/api/acceptance/iframes/123456?payment_token=${paymentToken}`;
+      // 🔸 استبدل 123456 بـ رقم الـ iframe الحقيقي من حسابك في Paymob
+    }
+  </script>
+</body>
+</html>

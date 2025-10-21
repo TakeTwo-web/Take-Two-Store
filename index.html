@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر Take Two - المتجر الإلكتروني</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <!-- للأيقونات -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        nav {
+            background-color: #34495e;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: #5dade2;
+        }
+        section {
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .product {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            margin: 15px;
+            padding: 20px;
+            width: 280px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .product:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .product img {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .product h3 {
+            margin: 15px 0;
+        }
+        .product p {
+            color: #7f8c8d;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .buy-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .buy-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        .cart {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cart:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .cart i {
+            font-size: 20px;
+        }
+        .cart-count {
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .cart-content {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .cart-content h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .cart-item:hover {
+            background-color: #d5dbdb;
+        }
+        .remove-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+        .cart-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+        .cart-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .cart-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .checkout-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+        .checkout-btn:hover {
+            background-color: #229954;
+        }
+        .clear-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        .clear-btn:hover {
+            background-color: #e67e22;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        .contact-info {
+            text-align: center;
+            font-size: 18px;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        form input, form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        form button {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #34495e;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        footer a {
+            color: #5dade2;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Take Two</div>
+        <p>مرحباً بكم في متجرنا الإلكتروني - اختر منتجاتك المفضلة!</p>
+    </header>
+
+    <nav>
+        <a href="#about">About Us</a>
+        <a href="#works">Our Works</a>
+        <a href="#contact">Contact Us</a>
+    </nav>
+
+    <!-- سلة التسوق -->
+    <div class="cart" onclick="showCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cart-count">0</span>
+    </div>
+
+    <!-- نافذة السلة -->
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-content">
+            <button class="close-btn" onclick="closeCart()">&times;</button>
+            <h3><i class="fas fa-shopping-bag"></i> سلة التسوق</h3>
+            <div id="cart-items"></div>
+            <p class="cart-total">المجموع: <span id="cart-total">0</span> جنية</p>
+            <div class="cart-buttons">
+                <button class="checkout-btn" onclick="checkout()">إتمام الشراء</button>
+                <button class="clear-btn" onclick="clearCart()">مسح السلة</button>
+            </div>
+        </div>
+    </div>
+
+    <section id="about">
+        <h2>About Us</h2>
+        <p>متجر Take Two هو متجر إلكتروني متخصص في بيع المنتجات عالية الجودة. نحن نقدم أفضل المنتجات بأسعار تنافسية وخدمة عملاء ممتازة. هدفنا هو تقديم تجربة تسوق فريدة ومريحة لعملائنا.</p>
+    </section>
+
+    <section id="works">
+        <h2>Our Works (المنتجات)</h2>
+        <div class="products">
+            <div class="product">
+                <img src="Take Two pictures/IMG-20251020-WA0163.jpg" alt="نص قم الأسود">
+                <h3>نص قم الأسود</h3>
+                <p>وصف المنتج: منتج عالي الجودة، مثالي للاستخدام اليومي.</p>
+                <p class="price">200 جنية</p>
+                <button class="buy-btn" onclick="addToCart('نص قم الأسود', 200)">اشترِ الآن</button>
+            </div>
+
+            <div class="product">
+                <img src="Take Two pictures/IMG-20251020-WA0162.jpg" alt="نص قم البترولي">
+                <h3>نص قم البترولي</h3>
+                <p>وصف المنتج: منتج مميز بلون عصري.</p>
+                <p class="price">250 جنية</p>
+                <button class="buy-btn" onclick="addToCart('نص قم البترولي', 250)">اشترِ الآن</button>
+            </div>
+
+            <div class="product">
+                <img src="Take Two pictures/IMG-20251020-WA0158.jpg" alt="السويت شيرت الميلتون">
+                <h3>السويت شيرت الميلتون</h3>
+                <p>وصف المنتج: قميص مريح وأنيق لكل المناسبات.</p>
+                <p class="price">400 جنية</p>
+                <button class="buy-btn" onclick="addToCart('السويت شيرت الميلتون', 400)">اشترِ الآن</button>
+            </div>
+
+            <div class="product">
+                <img src="Take Two pictures/IMG-20251020-WA0157.jpg" alt="السمر ميلتون">
+                <h3>السمر ميلتون</h3>
+                <p>وصف المنتج: مثالي للصيف، خفيف ومريح.</p>
+                <p class="price">350 جنية</p>
+                <button class="buy-btn" onclick="addToCart('السمر ميلتون', 350)">اشترِ الآن</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Contact Us</h2>
+
+
+
+
+
+
+
+
+
+
+ <div class="contact-info">
+            <p>للتواصل معنا، يمكنك الاتصال بنا على الرقم التالي:</p>
+            <p><strong>رقم الهاتف: 01287708876</strong></p>
+            <p>أو البريد الإلكتروني: <a href="mailto:Taketttwo2@gmail.com">Taketttwo2@gmail.com</a></p>
+            <p>تابعنا على فيسبوك: <a href="https://www.facebook.com/share/16om3u8KyE/" target="_blank">صفحتنا على فيسبوك</a></p>
+            <p>تابعنا على إنستغرام: <a href="https://www.instagram.com/takettwo2?igsh=cXMwcTRlZ3diNGJy" target="_blank">حسابنا على إنستغرام</a></p>
+            <p>أو أرسل لنا رسالة عبر النموذج أدناه.</p>
+        </div>
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ربط مكتبة EmailJS -->
+<script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+<script>
+(function(){
+  emailjs.init("fOAvW3cTi-eH5I8tO"); // ضع المفتاح العام هنا
+})();
+function sendMail(e){
+  e.preventDefault();
+  emailjs.send("service_id0xdsc","template_4xon396",{
+    from_name: document.getElementById("name").value,
+    from_email: document.getElementById("email").value,
+    message: document.getElementById("message").value
+  }).then(() => {
+    alert("✅ تم إرسال الرسالة بنجاح! سيتم الرد عليك قريبًا.");
+    document.getElementById("contact-form").reset();
+  }).catch(err => {
+    alert("❌ حدث خطأ أثناء الإرسال: " + JSON.stringify(err));
+  });
+}
+</script>
+
+<!-- نموذج الاتصال -->
+<form id="contact-form" onsubmit="sendMail(event)">
+  <label for="name">الاسم:</label>
+  <input type="text" id="name" required>
+
+  <label for="email">البريد الإلكتروني:</label>
+  <input type="email" id="email" required>
+
+  <label for="message">الرسالة:</label>
+  <textarea id="message" rows="5" required></textarea>
+
+  <button type="submit">📩 إرسال</button>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  (function(){
+      emailjs.init("fOAvW3cTi-eH5I8tO"); // المفتاح العام (Public Key)
+  })();
+
+  document.getElementById("contact-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const formData = {
+          from_name: this.name.value,
+          from_email: this.email.value,
+          message: this.message.value
+      };
+
+      emailjs.send("service_id0xdsc", "template_4xon396", formData)
+        .then(function(response) {
+            alert("✅ تم إرسال الرسالة بنجاح!");
+        }, function(error) {
+            alert("❌ حدث خطأ أثناء الإرسال: " + JSON.stringify(error));
+            console.log(error);
+        });
+  });
+</script>
+
+
+
+
+
+
+
+       
+
+    <footer>
+        <p>&copy; 2025 متجر Take Two. جميع الحقوق محفوظة.</p>
+        <p>البريد الإلكتروني: <a href="mailto:Taketttwo2@gmail.com">Taketttwo2@gmail.com</a> | فيسبوك: <a href="https://www.facebook.com/share/16om3u8KyE/" target="_blank">تابعنا</a> | إنستغرام: <a href="https://www.instagram.com/takettwo2?igsh=cXMwcTRlZ3diNGJy" target="_blank">تابعنا</a></p>
+    </footer>
+
+    <!-- كود Tidio للـ Chatbot (استبدل YOUR_TIDIO_ID بالـ ID الحقيقي) -->
+    <script src="//code.tidio.co/YOUR_TIDIO_ID.js" async></script>
+
+    <script>
+        // إدارة السلة باستخدام localStorage
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        updateCartCount();
+
+        function addToCart(name, price) {
+            cart.push({ name: name, price: price });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            alert(`${name} تم إضافته إلى السلة!`);
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').textContent = cart.length;
+        }
+
+        function showCart() {
+            const cartItemsDiv = document.getElementById('cart-items');
+            cartItemsDiv.innerHTML = '';
+            let total = 0;
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<p>السلة فارغة</p>';
+            } else {
+                cart.forEach((item, index) => {
+                    total += item.price;
+                    cartItemsDiv.innerHTML += `
+                        <div class="cart-item">
+                            <span>${item.name} - ${item.price} جنية</span>
+                            <button class="remove-btn" onclick="removeFromCart(${index})">إزالة</button>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('cart-total').textContent = total;
+            document.getElementById('cart-modal').style.display = 'flex';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showCart(); // إعادة عرض السلة
+        }
+
+        function clearCart() {
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showCart();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('السلة فارغة!');
+            } else {
+                alert('شكراً لك! سيتم التواصل معك قريباً لإتمام الشراء.');
+                clearCart();
+                closeCart();
+            }
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').style.display = 'none';
+        }
+    </script>
+
+
+
+
+
+
+
+
+</body>
+</html>
