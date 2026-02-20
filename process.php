@@ -100,3 +100,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+$conn = new mysqli("localhost","root","","take_two");
+if($conn->connect_error){
+  die("DB Error");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+require "db.php";
+$res = $conn->query("SELECT * FROM products");
+$products=[];
+while($row=$res->fetch_assoc()){
+  $products[]=$row;
+}
+echo json_encode($products);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+require "db.php";
+
+$data = json_decode(file_get_contents("php://input"), true);
+$items = json_encode($data['items']);
+$total = $data['total'];
+
+$stmt = $conn->prepare("INSERT INTO orders(items,total) VALUES(?,?)");
+$stmt->bind_param("si",$items,$total);
+$stmt->execute();
+
+echo json_encode(["status"=>"success"]);
+
+
+
+
+
+
+
+
+
+

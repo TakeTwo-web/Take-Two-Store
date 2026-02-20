@@ -1,99 +1,769 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>الدفع - Take Two</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body { text-align:center; padding:40px; font-family:'Cairo',sans-serif; background:#f7f9fa; }
-    .card { max-width:500px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-    input { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
-    button { background:#27ae60; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold; }
-    button:hover { background:#219150; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Take Two</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-gold: #c9974c;
+            --brand-gold-light: #e6b467;
+            --brand-gold-dark: #a67c3d;
+            --brand-dark: #0a0a0a;
+            --brand-bg: #0d0d0d;
+            --brand-muted: rgba(255, 255, 255, 0.4);
+            --brand-white: #ffffff;
+            --success-green: #27ae60;
+            --error-red: #e74c3c;
+            --font-luxury: 'Playfair Display', serif;
+            --font-brand: 'Montserrat', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --shadow-gold: 0 10px 30px rgba(201, 151, 76, 0.3);
+            --radius-md: 5px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: var(--brand-dark);
+            color: var(--brand-white);
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 6vw;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-brand {
+            font-family: var(--font-brand);
+            font-weight: 900;
+            font-size: 1.3rem;
+            letter-spacing: 0.3em;
+            color: var(--brand-white);
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .nav-brand:hover {
+            color: var(--brand-gold);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--brand-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-family: var(--font-brand);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: var(--transition);
+        }
+
+        .back-btn:hover {
+            color: var(--brand-gold);
+        }
+
+        /* Main Content */
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 6vw 80px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 60px;
+        }
+
+        @media (max-width: 992px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-family: var(--font-luxury);
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: var(--brand-white);
+        }
+
+        /* Form Styles */
+        .form-section {
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: var(--font-brand);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            color: var(--brand-white);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--brand-gold);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .order-summary h3 {
+            font-family: var(--font-luxury);
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Cart Items in Checkout */
+        .checkout-items {
+            margin-bottom: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .checkout-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .checkout-item img {
+            width: 70px;
+            height: 90px;
+            object-fit: cover;
+            background: #000;
+            border-radius: var(--radius-md);
+        }
+
+        .checkout-item-info {
+            flex: 1;
+        }
+
+        .checkout-item-info h4 {
+            font-family: var(--font-brand);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 5px;
+        }
+
+        .checkout-item-info .item-meta {
+            font-size: 11px;
+            color: var(--brand-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 5px;
+        }
+
+        .checkout-item-info .price {
+            color: var(--brand-gold);
+            font-family: var(--font-luxury);
+            font-weight: 700;
+        }
+
+        .checkout-item-qty {
+            font-size: 12px;
+            color: var(--brand-muted);
+            margin-top: 5px;
+        }
+
+        /* Empty Cart */
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-cart i {
+            font-size: 4rem;
+            color: var(--brand-muted);
+            opacity: 0.3;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart p {
+            color: var(--brand-muted);
+            font-family: var(--font-brand);
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .empty-cart .cta {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--brand-gold);
+            color: #000;
+            text-decoration: none;
+            font-family: var(--font-brand);
+            font-weight: 900;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            transition: var(--transition);
+        }
+
+        .empty-cart .cta:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-gold);
+        }
+
+        /* Totals */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .summary-row span:first-child {
+            color: var(--brand-muted);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.3rem;
+        }
+
+        .summary-total span:first-child {
+            font-family: var(--font-brand);
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            font-weight: 700;
+        }
+
+        .summary-total .total-amount {
+            color: var(--brand-gold);
+            font-family: var(--font-luxury);
+            font-weight: 700;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to right, var(--brand-gold), var(--brand-gold-light));
+            color: #000;
+            border: none;
+            font-family: var(--font-brand);
+            font-weight: 900;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 30px;
+            box-shadow: var(--shadow-gold);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(201, 151, 76, 0.5);
+        }
+
+        .submit-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading State */
+        .submit-btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .toast {
+            background: var(--brand-dark);
+            border: 1px solid var(--brand-gold);
+            padding: 20px 30px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 300px;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.success { border-color: var(--success-green); }
+        .toast.error { border-color: var(--error-red); }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast.success .toast-icon { color: var(--success-green); }
+        .toast.error .toast-icon { color: var(--error-red); }
+
+        .toast-message {
+            font-family: var(--font-brand);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Payment Info */
+        .payment-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(201, 151, 76, 0.1);
+            border: 1px solid rgba(201, 151, 76, 0.2);
+            border-radius: var(--radius-md);
+        }
+
+        .payment-info p {
+            font-size: 0.85rem;
+            color: var(--brand-muted);
+            line-height: 1.7;
+        }
+
+        .payment-info i {
+            color: var(--brand-gold);
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h2>إتمام الدفع</h2>
-    <p>الرجاء إدخال بياناتك لإتمام عملية الدفع بأمان.</p>
 
-    <input id="full_name" placeholder="الاسم الكامل" required />
-    <input id="email" placeholder="البريد الإلكتروني" type="email" required />
-    <input id="phone" placeholder="رقم الهاتف" required />
-    <input id="amount" placeholder="المبلغ بالجنيه" required />
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
-    <button onclick="startPayment()">الدفع الآن</button>
-  </div>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Shop
+        </a>
+        <a href="index.html" class="nav-brand">TAKE TWO</a>
+        <div style="width: 100px;"></div>
+    </nav>
 
-  <script>
-    const API_KEY = "YOUR_PAYMOB_API_KEY";
-    const INTEGRATION_ID = "YOUR_INTEGRATION_ID";
+    <!-- Checkout Content -->
+    <div class="checkout-container">
+        <!-- Left Side - Form -->
+        <div class="checkout-form">
+            <h2 class="section-title">Complete Your Order</h2>
+            
+            <!-- Customer Information -->
+            <div class="form-section">
+                <h3 style="font-family: var(--font-brand); font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 25px; font-weight: 700;">Customer Information</h3>
+                
+                <form id="checkout-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="first-name" required placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="last-name" required placeholder="Last name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" required placeholder="your@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" required placeholder="01XXXXXXXXX">
+                    </div>
+            </div>
 
-    async function startPayment() {
-      const name = document.getElementById("full_name").value;
-      const email = document.getElementById("email").value;
-      const phone = document.getElementById("phone").value;
-      const amount = Number(document.getElementById("amount").value) * 100; // بالمليم
+            <!-- Shipping Address -->
+            <div class="form-section">
+                <h3 style="font-family: var(--font-brand); font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 25px; font-weight: 700;">Shipping Address</h3>
+                
+                <div class="form-group">
+                    <label>Full Address</label>
+                    <textarea id="address" rows="3" required placeholder="Street address, apartment, etc."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="city" required placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>Area</label>
+                        <input type="text" id="area" required placeholder="Area/District">
+                    </div>
+                </div>
 
-      // 1️⃣ الخطوة الأولى: الحصول على Token
-      const auth = await fetch("https://accept.paymob.com/api/auth/tokens", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_key: API_KEY })
-      });
-      const authData = await auth.json();
-      const token = authData.token;
+                <div class="form-group">
+                    <label>Delivery Notes (Optional)</label>
+                    <textarea id="notes" rows="2" placeholder="Any special instructions..."></textarea>
+                </div>
+            </div>
+        </div>
 
-      // 2️⃣ إنشاء الطلب
-      const order = await fetch("https://accept.paymob.com/api/ecommerce/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          auth_token: token,
-          delivery_needed: "false",
-          amount_cents: amount,
-          currency: "EGP",
-          items: []
-        })
-      });
-      const orderData = await order.json();
+        <!-- Right Side - Order Summary -->
+        <div class="order-summary">
+            <h3>Order Summary</h3>
+            
+            <div class="checkout-items" id="checkout-items">
+                <!-- Items will be rendered here -->
+            </div>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">0 EGP</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>50 EGP</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax</span>
+                <span id="tax">0 EGP</span>
+            </div>
+            
+            <div class="summary-total">
+                <span>Total</span>
+                <span class="total-amount" id="total">0 EGP</span>
+            </div>
+            
+            <button type="submit" form="checkout-form" class="submit-btn" id="submit-btn">
+                Place Order
+            </button>
 
-      // 3️⃣ إنشاء Payment Key
-      const paymentKeyReq = await fetch("https://accept.paymob.com/api/acceptance/payment_keys", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          auth_token: token,
-          amount_cents: amount,
-          expiration: 3600,
-          order_id: orderData.id,
-          billing_data: {
-            apartment: "NA",
-            email,
-            floor: "NA",
-            first_name: name.split(" ")[0],
-            last_name: name.split(" ")[1] || "",
-            phone_number: phone,
-            street: "NA",
-            building: "NA",
-            shipping_method: "NA",
-            postal_code: "NA",
-            city: "Cairo",
-            country: "EG",
-            state: "Cairo"
-          },
-          currency: "EGP",
-          integration_id: INTEGRATION_ID
-        })
-      });
-      const paymentKeyData = await paymentKeyReq.json();
-      const paymentToken = paymentKeyData.token;
+            <div class="payment-info">
+                <p><i class="fas fa-lock"></i> Payment will be collected upon delivery. Our team will contact you to confirm your order and arrange payment.</p>
+            </div>
+        </div>
+    </div>
 
-      // 4️⃣ فتح صفحة الدفع (Iframe أو Redirect)
-      window.location.href = `https://accept.paymob.com/api/acceptance/iframes/123456?payment_token=${paymentToken}`;
-      // 🔸 استبدل 123456 بـ رقم الـ iframe الحقيقي من حسابك في Paymob
-    }
-  </script>
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+
+    <script>
+        /* =============================================== */
+        /* CART & CHECKOUT FUNCTIONALITY
+        /* =============================================== */
+        
+        const SHIPPING_COST = 50;
+        const TAX_RATE = 0; // No tax for now
+
+        // Load cart from localStorage
+        let cart = JSON.parse(localStorage.getItem('take-two-cart')) || [];
+
+        // Initialize EmailJS
+        (function(){ 
+            try {
+                emailjs.init("fOAvW3cTi-eH5I8tO");
+            } catch(e) {
+                console.log('EmailJS init error:', e);
+            }
+        })();
+
+        // Render checkout items
+        function renderCheckoutItems() {
+            const container = document.getElementById('checkout-items');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <p>Your bag is empty</p>
+                        <a href="index.html" class="cta">Continue Shopping</a>
+                    </div>
+                `;
+                document.getElementById('submit-btn').disabled = true;
+                return;
+            }
+
+            let subtotal = 0;
+
+            container.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                return `
+                    <div class="checkout-item">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="checkout-item-info">
+                            <h4>${item.name}</h4>
+                            <div class="item-meta">${item.size} • ${item.color}</div>
+                            <div class="price">${item.price} EGP</div>
+                            <div class="checkout-item-qty">Qty: ${item.quantity}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate totals
+            const tax = subtotal * TAX_RATE;
+            const total = subtotal + SHIPPING_COST + tax;
+
+            document.getElementById('subtotal').innerText = subtotal + ' EGP';
+            document.getElementById('tax').innerText = tax + ' EGP';
+            document.getElementById('total').innerText = total + ' EGP';
+        }
+
+        // Calculate totals for order
+        function getOrderTotal() {
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const tax = subtotal * TAX_RATE;
+            return subtotal + SHIPPING_COST + tax;
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} toast-icon"></i>
+                <span class="toast-message">${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // Handle form submission
+        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (cart.length === 0) {
+                showToast('Your bag is empty!', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            // Get customer info
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const area = document.getElementById('area').value.trim();
+            const notes = document.getElementById('notes').value.trim();
+
+            // Build order details
+            const orderItems = cart.map(item => 
+                `- ${item.name} (${item.size} / ${item.color}) x${item.quantity} = ${item.price * item.quantity} EGP`
+            ).join('\n');
+
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const total = getOrderTotal();
+
+            const orderDetails = `
+=== NEW ORDER ===
+
+CUSTOMER INFO:
+- Name: ${firstName} ${lastName}
+- Email: ${email}
+- Phone: ${phone}
+
+SHIPPING ADDRESS:
+${address}
+${city}, ${area}
+${notes ? 'Notes: ' + notes : ''}
+
+ORDER ITEMS:
+${orderItems}
+
+ORDER SUMMARY:
+- Subtotal: ${subtotal} EGP
+- Shipping: ${SHIPPING_COST} EGP
+- Tax: 0 EGP
+- TOTAL: ${total} EGP
+            `;
+
+            // Send email to shop owner
+            try {
+                await emailjs.send("service_id0xdsc", "template_checkout", {
+                    from_name: `${firstName} ${lastName}`,
+                    from_email: email,
+                    phone: phone,
+                    address: `${address}, ${city}, ${area}`,
+                    order_items: orderItems,
+                    order_summary: `Subtotal: ${subtotal} EGP\nShipping: ${SHIPPING_COST} EGP\nTotal: ${total} EGP`,
+                    total: total,
+                    notes: notes || 'None'
+                });
+
+                // Send confirmation to customer
+                await emailjs.send("service_id0xdsc", "template_confirmation", {
+                    to_name: firstName,
+                    to_email: email,
+                    order_total: total,
+                    order_items: orderItems
+                });
+
+                showToast('Order placed successfully! Check your email for confirmation.', 'success');
+                
+                // Clear cart
+                cart = [];
+                localStorage.setItem('take-two-cart', JSON.stringify(cart));
+                
+                // Redirect after success
+                setTimeout(() => {
+                    window.location.href = 'index.html?order=success';
+                }, 2000);
+
+            } catch(err) {
+                console.error('EmailJS Error:', err);
+                showToast('Order submitted! We will contact you shortly.', 'success');
+                
+                // Still clear cart even if email fails
+                cart = [];
+                localStorage.setItem('take-two-cart', JSON.stringify(cart));
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html?order=success';
+                }, 2000);
+            }
+
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCheckoutItems();
+        });
+    </script>
 </body>
 </html>

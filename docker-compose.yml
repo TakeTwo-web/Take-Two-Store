@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: take-two-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: take-two
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - take-two-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: take-two-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGO_URI=mongodb://admin:admin123@mongodb:27017/take-two?authSource=admin
+      - JWT_SECRET=${JWT_SECRET:-your_default_jwt_secret_min_32_chars}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_default_refresh_secret_min_32_chars}
+      - CLIENT_URL=http://localhost:3000
+      - CORS_ORIGIN=http://localhost:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - take-two-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  take-two-network:
+    driver: bridge
