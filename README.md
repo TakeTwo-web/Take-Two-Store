@@ -182,6 +182,57 @@ bash
 npm start
 ```
 
+## 📧 EmailJS Integration
+
+### Frontend Contact Form with Backend Validation
+
+The project implements a secure contact form using EmailJS with server-side validation to prevent spam and abuse.
+
+### Setup
+
+1. **EmailJS Account**
+   - Create account at [EmailJS](https://www.emailjs.com/)
+   - Create an email service (Gmail, Outlook, etc.)
+   - Create an email template
+   - Get your Public Key, Service ID, and Template ID
+
+2. **Environment Variables**
+   Add to your `.env` file:
+   
+```
+   # EmailJS Configuration
+   EMAILJS_PUBLIC_KEY=your_public_key
+   EMAILJS_SERVICE_ID=your_service_id
+   EMAILJS_TEMPLATE_ID=your_template_id
+   
+   # Rate Limiting (optional)
+   EMAIL_RATE_LIMIT_MAX=5
+   EMAIL_RATE_LIMIT_WINDOW_MS=3600000
+```
+
+3. **Frontend Configuration**
+   Update these values in `index.html`:
+   
+```
+javascript
+   emailjs.init("YOUR_PUBLIC_KEY");
+   emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {...})
+```
+
+### Security Features
+
+- **Server-side Validation**: All form submissions validated on server
+- **Rate Limiting**: Max 5 requests per hour per IP
+- **Honeypot Protection**: Hidden field catches spam bots
+- **Input Sanitization**: XSS protection on all inputs
+- **Email Validation**: Valid email format required
+
+### API Endpoint
+
+- `POST /api/email/validate` - Validates contact form
+  - Request: `{ name, email, message, honeypot }`
+  - Response: `{ success, validated, errors? }`
+
 ## ✅ Testing
 
 ```

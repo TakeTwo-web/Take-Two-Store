@@ -3049,19 +3049,25 @@ body {
 
             <div class="contact-form">
                 <form id="contact-form">
+                    <!-- Honeypot field for spam protection (hidden from users) -->
+                    <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                        <label for="hp-field">Do not fill this out</label>
+                        <input type="text" id="hp-field" name="honeypot" tabindex="-1" autocomplete="off">
+                    </div>
+                    
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" id="form-name" required placeholder="Your full name">
+                        <input type="text" id="form-name" required placeholder="Your full name" name="name">
                     </div>
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="form-email" required placeholder="your@email.com">
+                        <input type="email" id="form-email" required placeholder="your@email.com" name="email">
                     </div>
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea id="form-message" rows="5" required placeholder="How can we assist you?"></textarea>
+                        <textarea id="form-message" rows="5" required placeholder="How can we assist you?" name="message"></textarea>
                     </div>
-                    <button type="submit" class="submit-btn">Send Message</button>
+                    <button type="submit" class="submit-btn" id="contact-submit-btn">Send Message</button>
                 </form>
             </div>
         </div>
@@ -3398,34 +3404,89 @@ body {
             }
         })();
 
-document.getElementById('contact-form').addEventListener('submit', function(e){
+document.getElementById('contact-form').addEventListener('submit', async function(e){
             e.preventDefault();
+            
             const fromName = document.getElementById('form-name').value.trim();
             const fromEmail = document.getElementById('form-email').value.trim();
             const message = document.getElementById('form-message').value.trim();
+            const honeypot = document.getElementById('hp-field').value;
 
             // Get submit button
             const submitBtn = this.querySelector('.submit-btn');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = 'Sending...';
+            submitBtn.innerText = 'Validating...';
             submitBtn.disabled = true;
 
-            emailjs.send("service_id0xdsc", "template_4xon396", {
-                from_name: fromName,
-                from_email: fromEmail,
-                message: message
-            }).then(function(response) {
-                console.log('SUCCESS:', response);
-                showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
-                document.getElementById('contact-form').reset();
+            try {
+                // First, validate with backend server
+                const validationResponse = await fetch('/api/email/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: fromName,
+                        email: fromEmail,
+                        message: message,
+                        honeypot: honeypot
+                    })
+                });
+
+                const validationData = await validationResponse.json();
+
+                if (!validationData.success) {
+                    if (validationData.errors) {
+                        showToast(validationData.errors[0], 'error');
+                    } else {
+                        showToast(validationData.message || 'Validation failed', 'error');
+                    }
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (validationData.retryAfter) {
+                    showToast(`Too many requests. Please try again in ${validationData.retryAfter} seconds.`, 'error');
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (!validationData.validated) {
+                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+                    document.getElementById('contact-form').reset();
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // Validation passed - now send email via EmailJS
+                submitBtn.innerText = 'Sending...';
+                
+                emailjs.send("service_id0xdsc", "template_4xon396", {
+                    from_name: fromName,
+                    from_email: fromEmail,
+                    message: message
+                }).then(function(response) {
+                    console.log('SUCCESS:', response);
+                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+                    document.getElementById('contact-form').reset();
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                }, function(error) {
+                    console.log('ERROR:', error);
+                    showToast('Error: ' + error.text + ' (Status: ' + error.status + ')', 'error');
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                });
+                
+            } catch (error) {
+                console.error('Validation error:', error);
+                showToast('An error occurred. Please try again.', 'error');
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
-            }, function(error) {
-                console.log('ERROR:', error);
-                showToast('Error: ' + error.text + ' (Status: ' + error.status + ')', 'error');
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            });
+            }
         });
 
         /* =============================================== */

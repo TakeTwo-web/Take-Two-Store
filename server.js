@@ -22,6 +22,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 
 // Connect to database
 connectDB();
@@ -110,6 +111,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/email', emailRoutes);
 
 // Swagger API documentation - disabled by default in production for security
 const isSwaggerEnabled = process.env.ENABLE_SWAGGER === 'true' || 
