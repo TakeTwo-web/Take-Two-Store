@@ -150,7 +150,7 @@ function sendContactForm(formId) {
         message: form.querySelector('textarea[name="message"]').value
     };
 
-    emailjs.send('service_exbkmqp', 'template_l0ddljn', formData, 'dfZYpkEXbWo4AGWv3')
+    emailjs.send("service_id0xdsc", "template_4xon396", formData, "fOAvW3cTi-eH5I8tO")
     .then(() => {
         alert("تم إرسال رسالتك بنجاح!");
         form.reset();

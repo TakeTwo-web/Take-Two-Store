@@ -713,7 +713,7 @@ ORDER SUMMARY:
 
             // Send email to shop owner
             try {
-                await emailjs.send("service_id0xdsc", "template_checkout", {
+await emailjs.send("service_id0xdsc", "template_4xon396", {
                     from_name: `${firstName} ${lastName}`,
                     from_email: email,
                     phone: phone,
@@ -725,7 +725,7 @@ ORDER SUMMARY:
                 });
 
                 // Send confirmation to customer
-                await emailjs.send("service_id0xdsc", "template_confirmation", {
+await emailjs.send("service_id0xdsc", "template_4xon396", {
                     to_name: firstName,
                     to_email: email,
                     order_total: total,
