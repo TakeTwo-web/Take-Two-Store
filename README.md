@@ -247,3 +247,4 @@ npm test -- --coverage
 ## 📄 License
 
 ISC
+

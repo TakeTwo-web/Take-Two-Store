@@ -132,17 +132,27 @@ if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
 
-// ================= EMAILJS =================
-if (window.emailjs) {
-    emailjs.init("fOAvW3cTi-eH5I8tO");
-    console.log("EmailJS Ready");
-} else {
-    console.log("EmailJS Not Loaded");
-}
+// ================= EMAILJS - CLEAN IMPLEMENTATION =================
+(function(){
+    if (typeof emailjs !== 'undefined') {
+        try {
+            emailjs.init("fOAvW3cTi-eH5I8tO");
+            console.log("✅ EmailJS initialized");
+        } catch(e) {
+            console.error("❌ EmailJS init error:", e);
+        }
+    } else {
+        console.error("❌ EmailJS SDK not found");
+    }
+})();
 
+// Clean contact form handler
 function sendContactForm(formId) {
     const form = document.getElementById(formId);
-    if (!form) return;
+    if (!form) {
+        console.error('Form not found:', formId);
+        return;
+    }
 
     const formData = {
         name: form.querySelector('input[name="name"]').value,
@@ -150,14 +160,44 @@ function sendContactForm(formId) {
         message: form.querySelector('textarea[name="message"]').value
     };
 
-    emailjs.send("service_id0xdsc", "template_4xon396", formData, "fOAvW3cTi-eH5I8tO")
-    .then(() => {
-        alert("تم إرسال رسالتك بنجاح!");
-        form.reset();
-    })
-    .catch((err) => {
-        console.error(err);
-        alert("حدث خطأ أثناء الإرسال. حاول مرة أخرى.");
-    });
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.message) {
+        alert("يرجى ملء جميع الحقول المطلوبة");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        alert("يرجى إدخال بريد إلكتروني صحيح");
+        return;
+    }
+
+    console.log('📧 Sending contact form via EmailJS...');
+
+    if (typeof emailjs !== 'undefined') {
+        emailjs.send("service_id0xdsc", "template_4xon396", {
+            from_name: formData.name,
+            from_email: formData.email,
+            message: formData.message,
+            reply_to: formData.email
+        }, "fOAvW3cTi-eH5I8tO")
+        .then((response) => {
+            console.log('✅ Email sent successfully:', response);
+            alert("تم إرسال رسالتك بنجاح!");
+            form.reset();
+        })
+        .catch((error) => {
+            console.error('❌ EmailJS Error:', error);
+            let errorMsg = "حدث خطأ أثناء الإرسال. حاول مرة أخرى.";
+            if (error.status === 400) {
+                errorMsg = "خطأ في إعداد القالب. يرجى الاتصال بالدعم.";
+            } else if (error.status === 401) {
+                errorMsg = "خطأ في التحقق. يرجى الاتصال بالدعم.";
+            }
+            alert(errorMsg);
+        });
+    } else {
+        alert("خدمة البريد غير متوفرة. يرجى تحديث الصفحة.");
+    }
 }
 

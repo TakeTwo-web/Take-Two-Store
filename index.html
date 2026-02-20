@@ -3393,100 +3393,104 @@ body {
             if (e.key === 'Escape') closeCart();
         });
 
+/* =============================================== */
+        /* EMAIL JS CONTACT FORM - CLEAN IMPLEMENTATION
         /* =============================================== */
-        /* EMAIL JS CONTACT FORM
-        /* =============================================== */
+        
+        // Initialize EmailJS on page load
         (function(){ 
-            try {
-                emailjs.init("fOAvW3cTi-eH5I8tO");
-            } catch(e) {
-                console.log('EmailJS init error:', e);
+            if (typeof emailjs !== 'undefined') {
+                try {
+                    emailjs.init("fOAvW3cTi-eH5I8tO");
+                    console.log('✅ EmailJS initialized');
+                } catch(e) {
+                    console.error('❌ EmailJS init error:', e);
+                }
+            } else {
+                console.error('❌ EmailJS SDK not found');
             }
         })();
 
-document.getElementById('contact-form').addEventListener('submit', async function(e){
+        // Contact Form Handler - Clean Implementation
+        document.getElementById('contact-form').addEventListener('submit', async function(e){
             e.preventDefault();
             
+            // Get form data
             const fromName = document.getElementById('form-name').value.trim();
             const fromEmail = document.getElementById('form-email').value.trim();
             const message = document.getElementById('form-message').value.trim();
-            const honeypot = document.getElementById('hp-field').value;
-
-            // Get submit button
+            
+            // Get submit button and show loading state
             const submitBtn = this.querySelector('.submit-btn');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = 'Validating...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             submitBtn.disabled = true;
 
-            try {
-                // First, validate with backend server
-                const validationResponse = await fetch('/api/email/validate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: fromName,
-                        email: fromEmail,
-                        message: message,
-                        honeypot: honeypot
-                    })
-                });
-
-                const validationData = await validationResponse.json();
-
-                if (!validationData.success) {
-                    if (validationData.errors) {
-                        showToast(validationData.errors[0], 'error');
-                    } else {
-                        showToast(validationData.message || 'Validation failed', 'error');
-                    }
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                    return;
-                }
-
-                if (validationData.retryAfter) {
-                    showToast(`Too many requests. Please try again in ${validationData.retryAfter} seconds.`, 'error');
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                    return;
-                }
-
-                if (!validationData.validated) {
-                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
-                    document.getElementById('contact-form').reset();
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                    return;
-                }
-
-                // Validation passed - now send email via EmailJS
-                submitBtn.innerText = 'Sending...';
-                
-                emailjs.send("service_id0xdsc", "template_4xon396", {
-                    from_name: fromName,
-                    from_email: fromEmail,
-                    message: message
-                }).then(function(response) {
-                    console.log('SUCCESS:', response);
-                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
-                    document.getElementById('contact-form').reset();
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                }, function(error) {
-                    console.log('ERROR:', error);
-                    showToast('Error: ' + error.text + ' (Status: ' + error.status + ')', 'error');
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                });
-                
-            } catch (error) {
-                console.error('Validation error:', error);
-                showToast('An error occurred. Please try again.', 'error');
+            // Client-side validation
+            if (!fromName || fromName.length < 2) {
+                showToast('Please enter your name (at least 2 characters)', 'error');
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
+                return;
             }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(fromEmail)) {
+                showToast('Please enter a valid email address', 'error');
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            if (!message || message.length < 10) {
+                showToast('Please enter a message (at least 10 characters)', 'error');
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            console.log('📧 Sending contact form via EmailJS...');
+
+            // Send email using EmailJS
+            if (typeof emailjs !== 'undefined') {
+                try {
+                    const response = await emailjs.send(
+                        "service_id0xdsc", 
+                        "template_4xon396", 
+                        {
+                            from_name: fromName,
+                            from_email: fromEmail,
+                            message: message,
+                            reply_to: fromEmail
+                        },
+                        "fOAvW3cTi-eH5I8tO"
+                    );
+                    
+                    console.log('✅ Email sent successfully:', response);
+                    showToast('Message sent successfully! We\'ll get back to you soon.', 'success');
+                    document.getElementById('contact-form').reset();
+                    
+                } catch (error) {
+                    console.error('❌ EmailJS Error:', error);
+                    
+                    let errorMsg = 'Failed to send message. Please try again.';
+                    if (error.status === 400) {
+                        errorMsg = 'Template configuration error. Please contact support.';
+                    } else if (error.status === 401) {
+                        errorMsg = 'Service not authorized. Please contact support.';
+                    } else if (error.text) {
+                        errorMsg = 'Error: ' + error.text;
+                    }
+                    
+                    showToast(errorMsg, 'error');
+                }
+            } else {
+                showToast('Email service not available. Please refresh the page.', 'error');
+            }
+
+            // Reset button state
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
         });
 
         /* =============================================== */
