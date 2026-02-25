@@ -1,250 +1,186 @@
-# Take Two - Enterprise E-Commerce Backend
+# Take Two - Email Backend Setup
 
-A production-ready, scalable Node.js + Express + MongoDB backend for e-commerce applications.
+## Overview
+This project has been updated to replace EmailJS with a secure Node.js backend using Nodemailer for sending contact form emails via Gmail SMTP.
 
-## 🚀 Features
+## What's Changed
+- **Removed**: EmailJS client-side implementation (was exposing public key)
+- **Added**: Secure backend email service using Nodemailer with Gmail SMTP
+- **Environment Variables**: All credentials are now stored securely server-side
 
-### Core Features
-- User Authentication (JWT + Refresh Tokens)
-- Product Management (CRUD, Categories, Search)
-- Shopping Cart
-- Order Management
-- Stripe Payment Integration
+## Requirements Met
+1. ✅ Express server
+2. ✅ Nodemailer for email sending
+3. ✅ CORS enabled
+4. ✅ dotenv for environment variables
+5. ✅ POST route `/api/email/send`
+6. ✅ Accepts: name, email, message from frontend
+7. ✅ Sends email to your Gmail inbox
+8. ✅ Returns JSON response (success or error)
+9. ✅ Security: No hardcoded credentials
+10. ✅ Uses async/await with try/catch
+11. ✅ Clean HTML form with fetch()
+12. ✅ Shows alert on success/failure
+13. ✅ Ready for Render/Vercel deployment
 
-### Enterprise Features
-- **Admin Dashboard** - Analytics, User Management, Order Management
-- **Logging** - Winston with daily rotation
-- **Security** - Helmet, CORS, Rate Limiting, XSS Protection
-- **API Documentation** - Swagger UI
-- **Docker Support** - Multi-stage build
-- **CI/CD** - GitHub Actions
-- **Testing** - Jest + Supertest
+## Setup Instructions
 
-## 📁 Project Structure
-
-```
-take-two-backend/
-├── config/
-│   ├── db.js              # MongoDB connection
-│   ├── logger.js          # Winston logger config
-│   └── swagger.js         # Swagger API docs
-├── controllers/
-│   ├── adminController.js # Admin dashboard endpoints
-│   ├── authController.js  # Authentication
-│   ├── cartController.js # Cart management
-│   ├── orderController.js # Order management
-│   ├── paymentController.js# Stripe payment
-│   └── productController.js# Product CRUD
-├── middleware/
-│   ├── auth.js           # JWT authentication
-│   ├── errorHandler.js  # Global error handler
-│   └── validate.js       # Input validation
-├── models/
-│   ├── Cart.js
-│   ├── Order.js
-│   ├── Product.js
-│   └── User.js
-├── routes/
-│   ├── adminRoutes.js
-│   ├── authRoutes.js
-│   ├── cartRoutes.js
-│   ├── orderRoutes.js
-│   ├── paymentRoutes.js
-│   ├── productRoutes.js
-│   └── userRoutes.js
-├── utils/
-│   ├── asyncHandler.js
-│   ├── ErrorResponse.js
-│   └── pagination.js
-├── tests/
-│   └── app.test.js
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── Dockerfile
-├── docker-compose.yml
-├── render.yaml
-├── jest.config.js
-├── package.json
-└── server.js
-```
-
-## 🛠️ Setup
-
-### Prerequisites
-- Node.js 18+
-- MongoDB (local or Atlas)
-- Stripe Account (for payments)
-
-### Installation
-
+### Step 1: Install Dependencies
 ```
 bash
-# Clone the repository
-cd take-two-backend
-
-# Install dependencies
 npm install
-
-# Create .env file
-cp .env.example .env
-
-# Start development server
-npm run dev
 ```
 
-## ⚙️ Environment Variables
+### Step 2: Generate Gmail App Password
+**IMPORTANT**: You cannot use your regular Gmail password. You must generate an App Password.
 
-See `.env.example` for all required variables:
+1. Go to your Google Account: https://myaccount.google.com/
+2. Click on **Security** (left sidebar)
+3. Under "How you sign in to Google", enable **2-Step Verification**
+4. After enabling 2-Step Verification, search for "App Passwords" in the search bar
+5. Select **Mail** as the app
+6. Select **Other (Custom name)** and enter "Take Two Website"
+7. Click **Generate**
+8. Copy the 16-character password (format: `xxxx xxxx xxxx xxxx`)
 
+### Step 3: Configure Environment Variables
+1. Copy `.env.example` to `.env`:
+```
+bash
+cp .env.example .env
+```
+
+2. Edit `.env` and fill in your values:
 ```
 env
-# Required
-NODE_ENV=development
 PORT=5000
-MONGO_URI=mongodb+srv://...
-JWT_SECRET=your_32_char_minimum_secret
-JWT_REFRESH_SECRET=your_32_char_minimum_refresh_secret
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-CLIENT_URL=http://localhost:3000
-CORS_ORIGIN=http://localhost:3000
+NODE_ENV=development
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-16-character-app-password
 ```
 
-## 📝 API Endpoints
+**Example:**
+```
+env
+PORT=5000
+NODE_ENV=development
+EMAIL_USER=john@gmail.com
+EMAIL_PASS=abcd1234efgh5678
+```
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login
-- `POST /api/auth/refresh` - Refresh token
-- `POST /api/auth/logout` - Logout
-
-### Products
-- `GET /api/products` - List products (with pagination)
-- `GET /api/products/:id` - Get product
-- `POST /api/products` - Create product (Admin)
-- `PUT /api/products/:id` - Update product (Admin)
-- `DELETE /api/products/:id` - Delete product (Admin)
-
-### Cart
-- `GET /api/cart` - Get cart
-- `POST /api/cart` - Add to cart
-- `PUT /api/cart/:productId` - Update quantity
-- `DELETE /api/cart/:productId` - Remove item
-
-### Orders
-- `POST /api/orders` - Create order
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/:id` - Get order details
-
-### Payments
-- `POST /api/payments/create-checkout-session` - Create Stripe session
-- `GET /api/payments/verify/:sessionId` - Verify payment
-- `POST /api/payments/webhook` - Stripe webhook
-
-### Admin
-- `GET /api/admin/dashboard` - Dashboard statistics
-- `GET /api/admin/top-products` - Top selling products
-- `GET /api/admin/analytics` - Sales analytics
-- `GET /api/admin/users` - All users
-- `GET /api/admin/orders` - All orders
-
-### Documentation
-- Swagger UI: `/api-docs`
-- Swagger JSON: `/api-docs.json`
-
-## 🐳 Docker
-
+### Step 4: Run the Server
 ```
 bash
-# Build Docker image
-docker build -t take-two-backend .
+# Development mode (with auto-reload)
+npm run dev
 
-# Run container
-docker run -p 5000:5000 take-two-backend
-
-# Or use docker-compose
-docker-compose up
-```
-
-## ☁️ Deployment
-
-### Render
-1. Connect GitHub repository to Render
-2. Add environment variables in Render dashboard
-3. Deploy automatically on push to main
-
-### Manual
-```
-bash
-# Production
+# Production mode
 npm start
 ```
 
-## 📧 EmailJS Integration
-
-### Frontend Contact Form with Backend Validation
-
-The project implements a secure contact form using EmailJS with server-side validation to prevent spam and abuse.
-
-### Setup
-
-1. **EmailJS Account**
-   - Create account at [EmailJS](https://www.emailjs.com/)
-   - Create an email service (Gmail, Outlook, etc.)
-   - Create an email template
-   - Get your Public Key, Service ID, and Template ID
-
-2. **Environment Variables**
-   Add to your `.env` file:
-   
-```
-   # EmailJS Configuration
-   EMAILJS_PUBLIC_KEY=your_public_key
-   EMAILJS_SERVICE_ID=your_service_id
-   EMAILJS_TEMPLATE_ID=your_template_id
-   
-   # Rate Limiting (optional)
-   EMAIL_RATE_LIMIT_MAX=5
-   EMAIL_RATE_LIMIT_WINDOW_MS=3600000
-```
-
-3. **Frontend Configuration**
-   Update these values in `index.html`:
-   
-```
-javascript
-   emailjs.init("YOUR_PUBLIC_KEY");
-   emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {...})
-```
-
-### Security Features
-
-- **Server-side Validation**: All form submissions validated on server
-- **Rate Limiting**: Max 5 requests per hour per IP
-- **Honeypot Protection**: Hidden field catches spam bots
-- **Input Sanitization**: XSS protection on all inputs
-- **Email Validation**: Valid email format required
-
-### API Endpoint
-
-- `POST /api/email/validate` - Validates contact form
-  - Request: `{ name, email, message, honeypot }`
-  - Response: `{ success, validated, errors? }`
-
-## ✅ Testing
-
+### Step 5: Test the API
+Send a POST request to test:
 ```
 bash
-# Run tests
-npm test
-
-# Run with coverage
-npm test -- --coverage
+curl -X POST http://localhost:5000/api/email/send \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test User", "email": "test@example.com", "message": "This is a test message from the contact form."}'
 ```
 
-## 📄 License
+Expected response:
+```
+json
+{
+  "success": true,
+  "message": "Your message has been sent successfully!",
+  "messageId": "<some-id@google.com>"
+}
+```
 
-ISC
+## API Endpoint
 
+### POST /api/email/send
+Send a contact form message.
+
+**Request Body:**
+```
+json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "message": "Hello, I would like to inquire about..."
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Your message has been sent successfully!",
+  "messageId": "<abc123@google.com>"
+}
+```
+
+**Error Response (400):**
+```
+json
+{
+  "success": false,
+  "message": "Validation error message"
+}
+```
+
+**Error Response (500):**
+```
+json
+{
+  "success": false,
+  "message": "Failed to send email. Please try again later."
+}
+```
+
+## Deployment to Render
+
+1. Create a new Web Service on Render
+2. Connect your GitHub repository
+3. Set the following environment variables in Render:
+   - `EMAIL_USER`: your Gmail address
+   - `EMAIL_PASS`: your 16-character App Password
+   - `NODE_ENV`: production
+4. Set build command: `npm install`
+5. Set start command: `npm start`
+
+## Deployment to Vercel
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run `vercel` in your project root
+3. Add environment variables via Vercel dashboard:
+   - `EMAIL_USER`: your Gmail address
+   - `EMAIL_PASS`: your 16-character App Password
+
+## Security Notes
+
+- Never commit `.env` file to version control
+- The `.gitignore` already excludes `.env`
+- App Password is different from your regular Gmail password
+- Keep your App Password secure
+
+## Frontend Integration
+
+The frontend is already configured to send data to the backend. The `sendContactForm()` function in `script.js` now uses fetch() to POST to `/api/email/send`.
+
+## Troubleshooting
+
+### "Email service is not configured"
+- Make sure `EMAIL_USER` and `EMAIL_PASS` are set in your `.env` file
+
+### "Invalid credentials" or "Authentication failed"
+- Make sure you're using an App Password, not your regular Gmail password
+- Verify 2-Step Verification is enabled on your Google Account
+
+### "Too many requests"
+- The API has rate limiting (5 requests per hour per IP)
+- Wait an hour and try again
+
+### CORS errors
+- Update `CORS_ORIGIN` in `.env` to include your frontend domain

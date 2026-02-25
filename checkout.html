@@ -483,27 +483,30 @@
             <div class="form-section">
                 <h3 style="font-family: var(--font-brand); font-size: 14px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 25px; font-weight: 700;">Customer Information</h3>
                 
-                <form id="checkout-form">
+                <form id="checkout-form" action="https://formsubmit.co/taketttwo2@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="New Order - Take Two">
+                    <input type="hidden" name="_captcha" value="false">
                     <div class="form-row">
                         <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" id="first-name" required placeholder="First name">
+                            <input type="text" name="first_name" id="first-name" required placeholder="First name">
                         </div>
                         <div class="form-group">
                             <label>Last Name</label>
-                            <input type="text" id="last-name" required placeholder="Last name">
+                            <input type="text" name="last_name" id="last-name" required placeholder="Last name">
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="email" required placeholder="your@email.com">
+                        <input type="email" name="email" id="email" required placeholder="your@email.com">
                     </div>
                     
                     <div class="form-group">
                         <label>Phone Number</label>
-                        <input type="tel" id="phone" required placeholder="01XXXXXXXXX">
+                        <input type="tel" name="phone" id="phone" required placeholder="01XXXXXXXXX">
                     </div>
+                </form>
             </div>
 
             <!-- Shipping Address -->
@@ -569,28 +572,16 @@
         </div>
     </div>
 
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
-
     <script>
         /* =============================================== */
         /* CART & CHECKOUT FUNCTIONALITY
         /* =============================================== */
         
         const SHIPPING_COST = 50;
-        const TAX_RATE = 0; // No tax for now
+        const TAX_RATE = 0;
 
         // Load cart from localStorage
         let cart = JSON.parse(localStorage.getItem('take-two-cart')) || [];
-
-        // Initialize EmailJS
-        (function(){ 
-            try {
-                emailjs.init("fOAvW3cTi-eH5I8tO");
-            } catch(e) {
-                console.log('EmailJS init error:', e);
-            }
-        })();
 
         // Render checkout items
         function renderCheckoutItems() {
@@ -657,107 +648,36 @@
             setTimeout(() => toast.remove(), 4000);
         }
 
-        // Handle form submission
-        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
+        // Handle form submission - using formsubmit.co
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
             if (cart.length === 0) {
+                e.preventDefault();
                 showToast('Your bag is empty!', 'error');
                 return;
             }
 
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-
-            // Get customer info
-            const firstName = document.getElementById('first-name').value.trim();
-            const lastName = document.getElementById('last-name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const area = document.getElementById('area').value.trim();
-            const notes = document.getElementById('notes').value.trim();
-
-            // Build order details
+            // Add order details as hidden field before submit
             const orderItems = cart.map(item => 
-                `- ${item.name} (${item.size} / ${item.color}) x${item.quantity} = ${item.price * item.quantity} EGP`
+                `${item.name} (${item.size} / ${item.color}) x${item.quantity} = ${item.price * item.quantity} EGP`
             ).join('\n');
-
+            
             const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
             const total = getOrderTotal();
 
-            const orderDetails = `
-=== NEW ORDER ===
-
-CUSTOMER INFO:
-- Name: ${firstName} ${lastName}
-- Email: ${email}
-- Phone: ${phone}
-
-SHIPPING ADDRESS:
-${address}
-${city}, ${area}
-${notes ? 'Notes: ' + notes : ''}
-
-ORDER ITEMS:
-${orderItems}
-
-ORDER SUMMARY:
-- Subtotal: ${subtotal} EGP
-- Shipping: ${SHIPPING_COST} EGP
-- Tax: 0 EGP
-- TOTAL: ${total} EGP
-            `;
-
-            // Send email to shop owner
-            try {
-await emailjs.send("service_id0xdsc", "template_4xon396", {
-                    from_name: `${firstName} ${lastName}`,
-                    from_email: email,
-                    phone: phone,
-                    address: `${address}, ${city}, ${area}`,
-                    order_items: orderItems,
-                    order_summary: `Subtotal: ${subtotal} EGP\nShipping: ${SHIPPING_COST} EGP\nTotal: ${total} EGP`,
-                    total: total,
-                    notes: notes || 'None'
-                });
-
-                // Send confirmation to customer
-await emailjs.send("service_id0xdsc", "template_4xon396", {
-                    to_name: firstName,
-                    to_email: email,
-                    order_total: total,
-                    order_items: orderItems
-                });
-
-                showToast('Order placed successfully! Check your email for confirmation.', 'success');
-                
-                // Clear cart
-                cart = [];
-                localStorage.setItem('take-two-cart', JSON.stringify(cart));
-                
-                // Redirect after success
-                setTimeout(() => {
-                    window.location.href = 'index.html?order=success';
-                }, 2000);
-
-            } catch(err) {
-                console.error('EmailJS Error:', err);
-                showToast('Order submitted! We will contact you shortly.', 'success');
-                
-                // Still clear cart even if email fails
-                cart = [];
-                localStorage.setItem('take-two-cart', JSON.stringify(cart));
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html?order=success';
-                }, 2000);
+            // Create hidden input for order details
+            let orderInput = document.getElementById('order-details');
+            if (!orderInput) {
+                orderInput = document.createElement('input');
+                orderInput.type = 'hidden';
+                orderInput.id = 'order-details';
+                orderInput.name = 'order_details';
+                document.getElementById('checkout-form').appendChild(orderInput);
             }
+            orderInput.value = `Order Items:\n${orderItems}\n\nSubtotal: ${subtotal} EGP\nShipping: ${SHIPPING_COST} EGP\nTotal: ${total} EGP`;
 
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
+            // Clear cart
+            cart = [];
+            localStorage.setItem('take-two-cart', JSON.stringify(cart));
         });
 
         // Initialize on page load

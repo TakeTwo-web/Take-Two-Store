@@ -132,21 +132,8 @@ if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
 
-// ================= EMAILJS - CLEAN IMPLEMENTATION =================
-(function(){
-    if (typeof emailjs !== 'undefined') {
-        try {
-            emailjs.init("fOAvW3cTi-eH5I8tO");
-            console.log("✅ EmailJS initialized");
-        } catch(e) {
-            console.error("❌ EmailJS init error:", e);
-        }
-    } else {
-        console.error("❌ EmailJS SDK not found");
-    }
-})();
-
-// Clean contact form handler
+// ================= BACKEND EMAIL - NODEMAILER =================
+// Contact form handler using backend API
 function sendContactForm(formId) {
     const form = document.getElementById(formId);
     if (!form) {
@@ -172,32 +159,30 @@ function sendContactForm(formId) {
         return;
     }
 
-    console.log('📧 Sending contact form via EmailJS...');
+    console.log('Sending contact form to backend...');
 
-    if (typeof emailjs !== 'undefined') {
-        emailjs.send("service_id0xdsc", "template_4xon396", {
-            from_name: formData.name,
-            from_email: formData.email,
-            message: formData.message,
-            reply_to: formData.email
-        }, "fOAvW3cTi-eH5I8tO")
-        .then((response) => {
-            console.log('✅ Email sent successfully:', response);
+    // Send data to backend using fetch
+    fetch('/api/email/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Email sent successfully:', data.messageId);
             alert("تم إرسال رسالتك بنجاح!");
             form.reset();
-        })
-        .catch((error) => {
-            console.error('❌ EmailJS Error:', error);
-            let errorMsg = "حدث خطأ أثناء الإرسال. حاول مرة أخرى.";
-            if (error.status === 400) {
-                errorMsg = "خطأ في إعداد القالب. يرجى الاتصال بالدعم.";
-            } else if (error.status === 401) {
-                errorMsg = "خطأ في التحقق. يرجى الاتصال بالدعم.";
-            }
-            alert(errorMsg);
-        });
-    } else {
-        alert("خدمة البريد غير متوفرة. يرجى تحديث الصفحة.");
-    }
+        } else {
+            console.error('Error:', data.message);
+            alert(data.message || "حدث خطأ أثناء الإرسال. حاول مرة أخرى.");
+        }
+    })
+    .catch((error) => {
+        console.error('Error sending email:', error);
+        alert("حدث خطأ أثناء الإرسال. حاول مرة أخرى.");
+    });
 }
 
