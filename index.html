@@ -2768,10 +2768,11 @@ body {
             color: var(--error-red);
         }
 
-        .toast-message {
+.toast-message {
             font-family: var(--font-brand);
             font-size: 0.9rem;
             font-weight: 600;
+            color: var(--brand-white);
         }
 
         @keyframes slideInUp {
@@ -3269,7 +3270,7 @@ body {
 
             saveCartAndRefresh();
             
-            // Visual feedback
+// Visual feedback
             const btn = productEl.querySelector('.buy-btn');
             btn.innerText = "Added to Bag";
             btn.classList.add('added');
@@ -3277,7 +3278,7 @@ body {
             setTimeout(() => {
                 btn.innerText = "Add to Bag";
                 btn.classList.remove('added');
-            }, 2000);
+            }, 800);
 
             showToast('Item added to bag!', 'success');
         }
@@ -3515,10 +3516,10 @@ body {
             `;
             container.appendChild(toast);
 
-            setTimeout(() => {
+setTimeout(() => {
                 toast.classList.add('hiding');
                 setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            }, 800);
         }
 
         /* =============================================== */
