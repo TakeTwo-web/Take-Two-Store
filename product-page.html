@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Two — Deluxe Product View</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-gold: #c9974c;
+            --brand-white: #ffffff;
+            --brand-dark: #0a0a0a;
+            --brand-muted: #666666;
+            --bg-color: #0d0d0d;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --font-body: 'Inter', sans-serif;
+            --font-display: 'Montserrat', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--brand-white);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Header / Navigation --- */
+        nav {
+            padding: 2.5rem 6vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .brand-logo {
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 1.25rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--brand-white);
+        }
+
+        .brand-logo span {
+            color: var(--brand-gold);
+        }
+
+        /* --- Main Layout --- */
+        main {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            padding-top: 50px;
+        }
+
+        /* --- LEFT SIDE: IMAGE GALLERY --- */
+        .product-gallery {
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        .main-image-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .main-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: var(--transition);
+            opacity: 1;
+        }
+
+        /* Image Change Animation State */
+        .main-image-container img.fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(201, 151, 76, 0.1);
+            border-top: 2px solid var(--brand-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 5;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* --- RIGHT SIDE: PRODUCT INFO --- */
+        .product-info {
+            padding: 120px 8vw 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--bg-color);
+        }
+
+        .category-tag {
+            color: var(--brand-gold);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .price {
+            font-size: 1.75rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .description {
+            color: var(--brand-muted);
+            font-size: 1rem;
+            margin-bottom: 3rem;
+            max-width: 450px;
+        }
+
+        /* --- SELECTION GROUPS --- */
+        .selection-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .group-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--brand-muted);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .color-swatch.active {
+            border-color: var(--brand-white);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .color-swatch::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .color-swatch.active::after {
+            opacity: 1;
+        }
+
+        .selected-color-name {
+            font-size: 0.85rem;
+            margin-left: 10px;
+            color: var(--brand-white);
+            font-weight: 500;
+        }
+
+        .size-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .size-box {
+            width: 50px;
+            height: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+        }
+
+        .size-box:hover {
+            border-color: var(--brand-gold);
+            color: var(--brand-gold);
+        }
+
+        .size-box.active {
+            background: var(--brand-white);
+            color: var(--brand-dark);
+            border-color: var(--brand-white);
+        }
+
+        /* --- ADD TO CART BUTTON --- */
+        .add-to-cart {
+            margin-top: 2rem;
+            padding: 1.5rem 3rem;
+            background: var(--brand-gold);
+            color: #000;
+            border: none;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            width: 100%;
+            max-width: 400px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-to-cart:hover {
+            background: #e6b467;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(201, 151, 76, 0.3);
+        }
+
+        /* --- RELATED COLLECTIONS --- */
+        .related-collections {
+            padding: 80px 8vw;
+            background: #050505;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .collections-title {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--brand-gold);
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .collection-item {
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+
+        .collection-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .collection-item:hover img {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .collection-item.active {
+            border-color: var(--brand-gold);
+        }
+
+        .collection-item.active img {
+            opacity: 1;
+        }
+
+        .collection-name {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: white;
+            z-index: 2;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            .product-gallery {
+                min-height: 70vh;
+            }
+            .product-info {
+                padding: 60px 6vw;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .collections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="brand-logo">TAKE<span>TWO</span></a>
+        <div style="color: var(--brand-muted); font-size: 0.8rem; letter-spacing: 0.1em;">COLLECTION 2026</div>
+    </nav>
+
+    <main>
+        <section class="product-gallery">
+            <div class="loading-spinner" id="spinner"></div>
+            <div class="main-image-container">
+                <img id="main-product-img" src="IMG-20251020-WA0163.jpg" alt="Premium Product">
+            </div>
+        </section>
+
+        <section class="product-info">
+            <div id="product-content" class="animate-content">
+                <span class="category-tag">Premium Streetwear</span>
+                <h1 id="product-name">The Signature Hoodie</h1>
+                <div class="price" id="product-price">200 EGP</div>
+                
+                <p class="description">
+                    Meticulously crafted with our proprietary heavy-weight cotton blend. 
+                    Featuring a relaxed silhouette, dropped shoulders, and a structured hood 
+                    designed for the modern individual who demands both comfort and excellence.
+                </p>
+
+                <div class="selection-group">
+                    <span class="group-label">Color: <span class="selected-color-name" id="color-label">Burgundy</span></span>
+                    <div class="color-options" id="color-swatches">
+                        <!-- Swatches injected by JS -->
+                    </div>
+                </div>
+
+                <div class="selection-group" id="size-group">
+                    <span class="group-label">Size</span>
+                    <div class="size-options" id="size-options">
+                        <!-- Sizes injected by JS -->
+                    </div>
+                </div>
+
+                <button class="add-to-cart">Add to Bag</button>
+            </div>
+        </section>
+    </main>
+
+    <section class="related-collections">
+        <h3 class="collections-title">Explore the Collection</h3>
+        <div class="collections-grid" id="collections-grid">
+            <!-- Products injected by JS -->
+        </div>
+    </section>
+
+    <script>
+        // User Data - Full Catalog
+        const products = [
+            {
+                id: 'p1',
+                name: 'Signature Hoodie',
+                price: 200,
+                desc: 'Meticulously crafted heavy-weight cotton. Relaxed silhouette with dropped shoulders.',
+                sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+                colors: [
+                    { name: 'Burgundy', hex: '#630d1e', img: 'IMG-20251020-WA0163.jpg' },
+                    { name: 'Beige', hex: '#d2b48c', img: 'IMG-20251020-WA0161.jpg' }
+                ]
+            },
+            {
+                id: 'p2',
+                name: 'Summer Shirt',
+                price: 250,
+                desc: 'Lightweight linen-blend perfection. Breathable fabric designed for the luxury summer aesthetic.',
+                sizes: ['S', 'M', 'L', 'XL'],
+                colors: [
+                    { name: 'Black', hex: '#000000', img: 'IMG-20251020-WA0162.jpg' },
+                    { name: 'Dark Teal', hex: '#004d4d', img: 'IMG-20251020-WA0160.jpg' }
+                ]
+            },
+            {
+                id: 'p3',
+                name: 'Melton Heidi',
+                price: 400,
+                desc: 'Structured premium Melton wool. A testament to architectural tailoring and timeless fashion.',
+                sizes: ['S', 'M', 'L', 'XL'],
+                colors: [
+                    { name: 'Kashmir', hex: '#8b8000', img: 'IMG-20251020-WA0158.jpg' },
+                    { name: 'Beige', hex: '#f5f5dc', img: 'IMG-20251020-WA0159.jpg' },
+                    { name: 'Deep Teal', hex: '#006666', img: 'IMG-20251020-WA0156.jpg' }
+                ]
+            },
+            {
+                id: 'p4',
+                name: 'Melton Sweat Shirt',
+                price: 350,
+                desc: 'A fusion of activewear comfort and high-fashion luxury. The ultimate everyday essential.',
+                sizes: ['S', 'M', 'L', 'XL'],
+                colors: [
+                    { name: 'Sky Blue', hex: '#87ceeb', img: 'IMG-20251020-WA0157.jpg' },
+                    { name: 'Baby Purple', hex: '#e6e6fa', img: 'IMG-20251020-WA0159.jpg' }
+                ]
+            }
+        ];
+
+        // Selection State
+        let currentProduct = products[0];
+        let selectedColor = currentProduct.colors[0];
+        let selectedSize = 'M';
+
+        // DOM Elements
+        const mainImg = document.getElementById('main-product-img');
+        const spinner = document.getElementById('spinner');
+        const colorLabel = document.getElementById('color-label');
+        const colorSwatchesContainer = document.getElementById('color-swatches');
+        const sizeOptionsContainer = document.getElementById('size-options');
+        const collectionsGrid = document.getElementById('collections-grid');
+        
+        const prodName = document.getElementById('product-name');
+        const prodPrice = document.getElementById('product-price');
+        const prodDesc = document.querySelector('.description');
+
+        // Initialize UI
+        function init() {
+            renderProduct(products[0]);
+            renderCollections();
+        }
+
+        function renderCollections() {
+            collectionsGrid.innerHTML = products.map(p => `
+                <div class="collection-item ${p.id === currentProduct.id ? 'active' : ''}" onclick="switchProduct('${p.id}')">
+                    <img src="${p.colors[0].img}" alt="${p.name}">
+                    <span class="collection-name">${p.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function switchProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product || product.id === currentProduct.id) return;
+
+            currentProduct = product;
+            selectedColor = product.colors[0];
+            
+            // Re-render
+            renderProduct(product);
+            renderCollections();
+        }
+
+        function renderProduct(product) {
+            // Update Text
+            prodName.innerText = product.name;
+            prodPrice.innerText = `${product.price} EGP`;
+            prodDesc.innerText = product.desc;
+            colorLabel.innerText = selectedColor.name;
+
+            // Update Image
+            handleColorChange(selectedColor, null, true); // true = instant skip animation for product switch
+
+            // Swatches
+            renderColorSwatches();
+
+            // Sizes
+            renderSizeOptions();
+        }
+
+        function renderColorSwatches() {
+            colorSwatchesContainer.innerHTML = '';
+            currentProduct.colors.forEach((color, index) => {
+                const swatch = document.createElement('div');
+                swatch.className = `color-swatch ${color.name === selectedColor.name ? 'active' : ''}`;
+                swatch.style.backgroundColor = color.hex;
+                swatch.title = color.name;
+                swatch.onclick = () => handleColorChange(color, swatch);
+                colorSwatchesContainer.appendChild(swatch);
+            });
+        }
+
+        function renderSizeOptions() {
+            sizeOptionsContainer.innerHTML = '';
+            currentProduct.sizes.forEach(size => {
+                const box = document.createElement('div');
+                box.className = `size-box ${size === selectedSize ? 'active' : ''}`;
+                box.innerText = size;
+                box.onclick = () => {
+                    document.querySelectorAll('.size-box').forEach(el => el.classList.remove('active'));
+                    box.classList.add('active');
+                    selectedSize = size;
+                };
+                sizeOptionsContainer.appendChild(box);
+            });
+        }
+
+        function handleColorChange(color, clickedElement, instant = false) {
+            // Update selection
+            colorLabel.innerText = color.name;
+            selectedColor = color;
+            if (clickedElement) {
+                document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+                clickedElement.classList.add('active');
+            }
+
+            if (instant) {
+                mainImg.src = color.img;
+                return;
+            }
+
+            // Start Transition
+            mainImg.classList.add('fade-out');
+            spinner.style.display = 'block';
+
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                setTimeout(() => {
+                    mainImg.src = color.img;
+                    mainImg.classList.remove('fade-out');
+                    spinner.style.display = 'none';
+                }, 400);
+            };
+            tempImg.onerror = () => {
+                mainImg.src = color.img;
+                mainImg.classList.remove('fade-out');
+                spinner.style.display = 'none';
+            };
+            tempImg.src = color.img;
+        }
+
+        // Boot
+        init();
+
+    </script>
+</body>
+</html>
